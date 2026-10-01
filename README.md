@@ -28,7 +28,9 @@ Trending board: served from the last scan at 0 credits; a fresh scan is a
 
 Every lookup saves a price snapshot, so the history chart gets smarter over time.
 SerpApi responses are cached (6h shopping / 24h lens+trends) to stay inside the
-free 250-credit/month tier.
+free 250-credit/month tier. A live credit meter in the footer
+(`GET /api/credits`, itself 0 searches, 1h server cache) shows searches
+remaining — quota is treated like money, visibly.
 
 ## Setup
 
@@ -64,6 +66,7 @@ full flow on seeded data, and `/api/prices` returns a clear error otherwise.
 | `/api/compare` | POST `{ a, b }` / GET `?demo=&demo2=` | Vs mode: two verdicts + winner |
 | `/api/trending` | GET | Trending drops board — served from last scan at 0 credits |
 | `/api/trending/refresh` | POST | Force a fresh live scan (~12 credits max, 0 when caches warm) |
+| `/api/credits` | GET | Free-tier credit meter (0 searches, 1h cache) — powers the footer badge |
 
 ## The verdict engine
 

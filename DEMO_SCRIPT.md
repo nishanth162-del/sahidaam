@@ -58,6 +58,11 @@ Click "Refresh live scan (~12 credits max)".
 
 Point at the cached badge on a re-run price check if visible.
 
+Scroll to the footer.
+> "And this little pill down here — live credit meter. It shows exactly how
+> many of our 250 free monthly searches are left, fetched for zero searches.
+> We built the whole app to sip the free tier, and we prove it on screen."
+
 ## 2:25–3:00 — Close
 Back to homepage.
 > "SahiDaam — सही दाम, know the right price. Commerce & Market Intelligence

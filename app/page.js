@@ -1,11 +1,31 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import VerdictCard, { inr, TimingHint } from "../components/VerdictCard";
 import PriceChart from "../components/PriceChart";
 import SellerTable from "../components/SellerTable";
 
 const LOADING_STEPS = ["Identifying product…", "Checking sellers across India…", "Reading price history…", "Computing verdict…"];
+
+/** Subtle footer pill: live free-tier credit count (0 searches to fetch). */
+function CreditBadge() {
+  const [c, setC] = useState(null);
+  useEffect(() => {
+    fetch("/api/credits")
+      .then((r) => r.json())
+      .then((d) => d.ok && setC(d))
+      .catch(() => {});
+  }, []);
+  if (!c) return null;
+  return (
+    <span
+      className="mt-2 inline-block rounded-full border border-zinc-200 bg-zinc-50 px-3 py-1 font-mono"
+      title="SerpApi free-tier searches remaining this month"
+    >
+      ⚡ {c.left}/{c.limit} free searches left
+    </span>
+  );
+}
 const TABS = [
   ["check", "Check price"],
   ["compare", "Vs mode"],
@@ -322,6 +342,8 @@ export default function Home() {
 
       <footer className="border-t border-zinc-200 py-6 text-center text-xs text-zinc-400">
         SahiDaam · Built for the SerpApi India Hackathon 2026 · Commerce & Market Intelligence track
+        <br />
+        <CreditBadge />
       </footer>
     </div>
   );
