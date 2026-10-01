@@ -23,7 +23,7 @@ export async function POST(request) {
     const productId = slug(query);
     const product = upsertProduct({ id: productId, name: query.trim() });
     const history = getHistory(productId);
-    const verdict = computeVerdict(offers, history);
+    const verdict = computeVerdict(offers, history, query.trim());
 
     if (verdict.streetPrice) {
       saveSnapshot(productId, {
