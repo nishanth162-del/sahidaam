@@ -29,6 +29,36 @@ export function TimingHint({ timing }) {
 }
 
 export default function VerdictCard({ verdict }) {
+  // Honest empty state: every listing was an accessory (or nothing usable
+  // came back). No score ring, no fake street price — plus a look at what
+  // got filtered, so the user can see the filter working.
+  if (verdict.verdict === "NO_RESULTS") {
+    return (
+      <div className="rounded-2xl border border-zinc-200 bg-zinc-50 p-6 text-zinc-800">
+        <div className="flex items-center gap-3">
+          <span className="inline-block h-3 w-3 rounded-full bg-zinc-400" />
+          <h2 className="text-2xl font-extrabold tracking-tight">No relevant offers</h2>
+        </div>
+        <p className="mt-1 text-sm opacity-80">SahiDaam won&apos;t price accessories as if they were the product.</p>
+        <ul className="mt-4 space-y-1.5 border-t border-zinc-200 pt-4 text-sm">
+          {verdict.signals.map((sig, i) => (
+            <li key={i} className="flex gap-2"><span className="opacity-50">→</span><span>{sig}</span></li>
+          ))}
+        </ul>
+        {verdict.setAside?.length > 0 && (
+          <details className="mt-3 text-sm">
+            <summary className="cursor-pointer font-medium opacity-70">What got filtered out ({verdict.setAside.length})</summary>
+            <ul className="mt-2 space-y-1 text-zinc-600">
+              {verdict.setAside.map((o, i) => (
+                <li key={i}>· {o.title} — {inr(o.price)} at {o.seller}</li>
+              ))}
+            </ul>
+          </details>
+        )}
+      </div>
+    );
+  }
+
   const s = STYLES[verdict.verdict] || STYLES.FAIR;
   const pct = Math.max(0, Math.min(100, verdict.dealScore));
   const circ = 2 * Math.PI * 44;
