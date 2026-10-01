@@ -97,6 +97,17 @@ export default function Home() {
     finally { setLoading(false); }
   }
 
+  async function refreshTrending() {
+    setLoading(true); reset();
+    try {
+      const res = await fetch("/api/trending/refresh", { method: "POST" });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Refresh failed");
+      setTrend(data);
+    } catch (e) { setError(e.message); }
+    finally { setLoading(false); }
+  }
+
   async function addWatch() {
     if (!result || !target) return;
     const res = await fetch("/api/watch", {
@@ -183,11 +194,21 @@ export default function Home() {
         {tab === "trending" && (
           <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm">
             <h2 className="text-sm font-semibold">Today's biggest genuine drops</h2>
-            <p className="mt-1 text-sm text-zinc-500">We scan high-interest products, run every one through the verdict engine, and rank by real discount vs 30-day history — not inflated MRP claims.</p>
-            <button onClick={loadTrending} disabled={loading}
-              className="mt-4 rounded-xl bg-indigo-600 px-6 py-3 text-sm font-bold text-white hover:bg-indigo-500 disabled:opacity-50">
-              {loading ? "Scanning…" : "Scan today's drops"}
-            </button>
+            <p className="mt-1 text-sm text-zinc-500">Ranked by real discount vs 30-day history — not inflated MRP claims. The board loads from our last scan at 0 credits; a fresh scan is always your call.</p>
+            {trend?.scannedAt && !trend?.demo && (
+              <p className="mt-1 text-xs text-zinc-400">Last scan: {new Date(trend.scannedAt).toLocaleString("en-IN")}{trend?.cached ? " · served from cache" : ""}</p>
+            )}
+            <div className="mt-4 flex flex-wrap items-center gap-4">
+              <button onClick={loadTrending} disabled={loading}
+                className="rounded-xl bg-indigo-600 px-6 py-3 text-sm font-bold text-white hover:bg-indigo-500 disabled:opacity-50">
+                {loading ? "…" : trend ? "Reload board" : "Show today's drops"}
+              </button>
+              {!trend?.demo && (
+                <button onClick={refreshTrending} disabled={loading} className="text-xs font-semibold text-indigo-600 hover:underline disabled:opacity-50">
+                  {loading ? "Scanning…" : "Refresh live scan (~12 credits max)"}
+                </button>
+              )}
+            </div>
             {trend?.demo && <p className="mt-2 text-xs text-amber-700">Demo data — connect a SerpApi key for the live scan.</p>}
           </div>
         )}

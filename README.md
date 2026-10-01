@@ -16,13 +16,14 @@ query / link / photo
   → Google Lens (photo → product name)          [SerpApi]
   → Google Shopping (live offers, INR, sellers) [SerpApi]
   → Google Trends (demand signal)               [SerpApi]
-  → normalize → reject outlier listings → street median
+  → normalize → set aside accessories (title relevance vs query)
+  → reject outlier listings → street median
   → compare vs 30-day snapshot history (SQLite)
   → verdict + deal score + buy-timing + price-drop watchlist
 
 Vs mode:        run the pipeline twice → winner by verdict + score + discount
-Trending board: curated high-interest scan → every product through the
-                verdict engine → ranked by real discount vs history
+Trending board: served from the last scan at 0 credits; a fresh scan is a
+                deliberate, cost-labeled action (~12 credits max)
 ```
 
 Every lookup saves a price snapshot, so the history chart gets smarter over time.
@@ -61,22 +62,27 @@ full flow on seeded data, and `/api/prices` returns a clear error otherwise.
 | `/api/watch` | GET / POST `{ productId, targetPrice }` | Price-drop watchlist |
 | `/api/demo` | GET | Full flow on seeded data (no key needed) |
 | `/api/compare` | POST `{ a, b }` / GET `?demo=&demo2=` | Vs mode: two verdicts + winner |
-| `/api/trending` | GET | Trending drops board, ranked by real discount |
+| `/api/trending` | GET | Trending drops board — served from last scan at 0 credits |
+| `/api/trending/refresh` | POST | Force a fresh live scan (~12 credits max, 0 when caches warm) |
 
 ## The verdict engine
 
 `lib/verdict.js` — pure, deterministic, auditable:
 
 1. **Normalize** — drop invalid prices, sort ascending.
-2. **Reject outliers** — listings outside [0.35×, 2.5×] of the raw median
-   (accessory/fake listings below, bundles/mismatches above) are filtered.
+2. **Relevance filter** — listings whose titles name accessories (skins, cases,
+   covers…) the query didn't ask for are set aside, so a ₹2,300 skin can never
+   "win" against the ₹27,000 product it accessorizes. Skipped when fewer than
+   2 genuine offers would remain.
+3. **Reject outliers** — listings outside [0.35×, 2.5×] of the raw median
+   (fake listings below, bundles/mismatches above) are filtered.
 3. **Street price** — median of the clean set.
 4. **History check** — current best vs 30-day median of saved snapshots.
 5. **Score** — `0.5·history + 0.3·spread + 0.2·seller-trust`, scaled 0–100.
 6. **Verdict** — ≥15% below 30-day median (or score ≥75) → BUY NOW;
    above recent typical → WAIT; single/unreliable sellers → AVOID.
 
-Unit tests: `node --test lib/verdict.test.js` (8/8 green).
+Unit tests: `node --test lib/verdict.test.js lib/serpapi.test.js` (20/20 green).
 
 ## Tech
 
