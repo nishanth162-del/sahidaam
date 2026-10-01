@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: sahidaam
+    runtime: node
+    plan: free
+    buildCommand: npm install && npm run build
+    startCommand: npm start -- -p $PORT
+    healthCheckPath: /
+    envVars:
+      - key: NODE_VERSION
+        value: 22.14.0
+      # Optional: add your SerpApi key after deploy for live prices
+      # (demo seed data is used when SERPAPI_KEY is absent)
+      - key: SERPAPI_KEY
+        sync: false
