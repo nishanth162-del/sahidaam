@@ -103,3 +103,7 @@ test strategy, and final code are the author's.
 Swap the SerpApi data layer for a self-hosted Indian e-commerce crawler
 (crawl-and-cache, not live-scrape) → Telegram price-check bot with affiliate
 links → public comparison site.
+
+## License
+
+MIT — see [LICENSE](LICENSE).
